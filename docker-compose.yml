@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+  disks-mysql:
+    container_name: disks-mysql
+    image: mysql/mysql-server
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD=false
+      - MYSQL_ROOT_HOST=%
+    ports: 
+      - 3306:3306

@@ -1,9 +1,14 @@
 {
   "name": "disks-api",
   "version": "1.0.0",
-  "description": "API to manage disks",
+  "description": "API to manage disks collections using node and mysql",
   "main": "index.js",
   "scripts": {
+    "build-dev-db": "docker-compose up --no-start && npm run init-dev-db",
+    "init-dev-db": "docker cp starter/etc/my.cnf disks-mysql:/etc/ && docker cp starter/var/lib/mysql disks-mysql:/var/lib/ && docker restart disks-mysql",
+    "start-dev-db": "docker start disks-mysql",
+    "stop-dev-db": "docker stop disks-mysql",
+    "delete-dev-db": "npm run stop-dev-db && docker rm -f disks-mysql",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Andressa Sivolella <andressasivolella@gmail.com>",
