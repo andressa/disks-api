@@ -6,10 +6,5 @@ module.exports = {
       return false;
     };
     return true;
-  },
-  'is_authorized': (req, callback) => {
-    connector.is_authorized(req.headers['authorization'], function(err, is_valid) {
-      callback(null, is_valid);
-    });
   }
 };

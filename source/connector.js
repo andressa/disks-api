@@ -6,7 +6,8 @@ const connection = mysql.createConnection({
   host: config.mysql.host,
   user: config.mysql.username,
   password: config.mysql.password,
-  port: config.mysql.port
+  port: config.mysql.port,
+  database: config.mysql.database
 });
 
 connection.connect(function(err) {
@@ -17,7 +18,7 @@ connection.connect(function(err) {
 module.exports = {
   "is_authorized": (token, callback) => {
     connection.query(
-      "SELECT id FROM passeidireto.user WHERE authorization='"+token+"';",
+      "SELECT id FROM user WHERE authorization='"+token+"';",
       function(err, result) {
         if (err) callback(err, null);
         var is_valid = false;
@@ -25,6 +26,30 @@ module.exports = {
           is_valid = true;
         
         callback(null, is_valid);
+      }
+    );
+  },
+  'get_user_collections': (token, callback) => {
+    connection.query(`
+       SELECT
+        collection.id, collection.name
+       FROM
+        collection, user
+       WHERE
+        collection.user_id=user.id AND user.authorization='`+ token +`';
+      `,
+      function(err, result) {
+        if (err) callback(err, null);
+        var collections = []
+        for (var row=0; row < result.length; row++) {
+          collections.push(
+            {
+              id: result[row].id,
+              name: result[row].name
+            }
+          )
+        };
+        callback(null, collections);
       }
     );
   }

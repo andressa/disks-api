@@ -3,7 +3,8 @@ module.exports = {
     'host': process.env.MYSQL_HOST || '0.0.0.0',
     'username': process.env.MYSQL_USERNAME || 'api-user',
     'password': process.env.MYSQL_PASSWORD,
-    'port': 3306 || process.env.MYSQL_PORT
+    'port': 3306 || process.env.MYSQL_PORT,
+    'database': process.env.MYSQL_DATABASE || 'passeidireto'
   },
   'api': {
     'port': process.env.API_PORT || 3000

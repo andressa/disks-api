@@ -30,16 +30,6 @@ describe('GET /collection', function() {
       });
   });
 
-  it('should return HttpStatusCode 200', function(done) {
-    request(api)
-      .get('/collection')
-      .set('authorization', 'TOKEN')
-      .end(function(err, res) {
-        expect(res.status).to.equal(200);
-        done();
-      });
-  });
-
   it('should return 400 if "authorization" is not in header', function(done) {
     request(api)
       .get('/collection')
@@ -86,6 +76,32 @@ describe('GET /collection', function() {
       });
   });
 
+  it('should return HttpStatusCode 200', function(done) {
+    request(api)
+      .get('/collection')
+      .set('Authorization', 'TOKEN')
+      .end(function(err, res) {
+        expect(res.status).to.equal(200);
+        done();
+      });
+  });
 
+  it('should return all available collections for a single user', function(done) {
+    request(api)
+      .get('/collection')
+      .set('Authorization', 'TOKEN')
+      .end(function(err, res) {
+        const expected = {
+          statusCode: 200,
+          message: "Success! Retrieved your collections.",
+          data: [{
+            id: 1,
+            name: 'standard_default_user'
+          }]
+        };
+        res.body.should.be.eql(expected);
+        done();
+      });
+  });
 
 });
