@@ -35,7 +35,16 @@ routes.route('/')
 routes.route('/collection')
   .get((req, res) => {
     if (controller.has_authorization_key(req)) {
-      res.status(200).end();
+      controller.is_authorized(req, function(err, authorized) {
+        if (authorized === false) {
+          res.status(400).json({
+            statusCode: 400,
+            message: "Insert a valid token on Header as 'authorization'"
+          });
+        } else {
+          res.status(200).end();
+        }
+      });
     } else {
       res.status(400).json({
         statusCode: 400,
