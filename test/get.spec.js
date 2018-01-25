@@ -6,6 +6,28 @@ const api = require('../server');
 
 describe('GET /', function () {
 
+  it('should return 405 if method is not implemented', function(done) {
+    request(api)
+      .post('/')
+      .end(function(err, res) {
+        expect(res.status).to.equal(405);
+        done();
+      });
+  });
+
+  it('should return helping message if method is not implemented', function(done) {
+    request(api)
+      .patch('/')
+      .end(function(err, res) {
+        const expected = {
+          statusCode: 405,
+          message: "The requested method is not allowed!"
+        };
+        res.body.should.be.eql(expected);
+        done();
+      });
+  });
+
   it('should return 400 if "authorization" not in header', function(done) {
     request(api)
       .get('/')
@@ -75,31 +97,5 @@ describe('GET /', function () {
         res.body.should.be.eql(expected);
         done();
       });
-  });
-});
-
-describe('GET /whatever', function() {
-
-  it('should return HttpStatusCode 404', function(done) {
-    request(api)
-      .get('/whatever')
-      .end(function(err, res) {
-        expect(res.status).to.equal(404);
-        done();
-      });
-  });
-
-  it('should return JSON object', function(done) {
-    request(api)
-      .get('/whatever')
-      .end(function(err, res) {
-        var expected = {
-          statusCode: 404,
-          message: 'Route not found!',
-          payload: {}
-        };
-        res.body.should.be.eql(expected);
-        done();
-      })
   });
 });
