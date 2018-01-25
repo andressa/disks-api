@@ -32,6 +32,14 @@ routes.route('/')
     });
   });
 
+routes.route('/collection')
+  .all((req, res) => {
+    res.status(405).json({
+      statusCode: 405,
+      message: "The requested method is not allowed!"
+    });
+  });
+
 routes.route('/*')
   .get((req, res) => {
     res.status(404).json({

@@ -9,6 +9,7 @@ describe('GET /', function () {
   it('should return 405 if method is not implemented', function(done) {
     request(api)
       .post('/')
+      .set('authorization', 'TOKEN')
       .end(function(err, res) {
         expect(res.status).to.equal(405);
         done();
@@ -18,6 +19,7 @@ describe('GET /', function () {
   it('should return helping message if method is not implemented', function(done) {
     request(api)
       .patch('/')
+      .set('authorization', 'TOKEN')
       .end(function(err, res) {
         const expected = {
           statusCode: 405,
