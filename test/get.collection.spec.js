@@ -39,4 +39,28 @@ describe('GET /collection', function() {
         done();
       });
   });
+
+  it('should return 400 if "authorization" is not in header', function(done) {
+    request(api)
+      .get('/collection')
+      .end(function(err, res) {
+        expect(res.status).to.equal(400);
+        done();
+      });
+  });
+
+  it('should return helping message if "authorization" is missing', function(done) {
+    request(api)
+      .get('/collection')
+      .end(function(err, res) {
+        const expected = {
+          statusCode: 400,
+          message: "You need to insert a token as 'authorization' on Header"
+        };
+        res.body.should.be.eql(expected);
+        done();
+      });
+  });
+
+
 });
