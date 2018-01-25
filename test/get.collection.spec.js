@@ -30,4 +30,13 @@ describe('GET /collection', function() {
       });
   });
 
+  it('should return HttpStatusCode 200', function(done) {
+    request(api)
+      .get('/collection')
+      .set('authorization', 'TOKEN')
+      .end(function(err, res) {
+        expect(res.status).to.equal(200);
+        done();
+      });
+  });
 });

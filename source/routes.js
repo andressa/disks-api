@@ -33,6 +33,9 @@ routes.route('/')
   });
 
 routes.route('/collection')
+  .get((req, res) => {
+    res.status(200).end();
+  })
   .all((req, res) => {
     res.status(405).json({
       statusCode: 405,
