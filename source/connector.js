@@ -1,5 +1,5 @@
 const environment = process.env.NODE_ENV || 'dev';
-const config = require("./config/" + environment + ".js");
+const config = require("../config/" + environment + ".js");
 const mysql = require("mysql");
 
 const connection = mysql.createConnection({

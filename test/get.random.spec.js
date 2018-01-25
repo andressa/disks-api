@@ -2,7 +2,7 @@ const request = require('supertest');
 const chai = require('chai');
 const should = chai.should(); 
 const expect = require('chai').expect;
-const api = require('../server');
+const api = require('../source/server');
 
 describe('GET /whatever', function() {
 
