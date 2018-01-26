@@ -4,7 +4,7 @@ const should = chai.should();
 const expect = require('chai').expect;
 const api = require('../source/server');
 
-describe('GET /collection/:id', function() {
+describe('GET /collection/:id?', function() {
 
   it('should return Http StatusCode 400 if :id is not int', function(done) {
     request(api)

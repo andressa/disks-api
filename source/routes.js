@@ -1,13 +1,12 @@
 const routes = require('express').Router();
-const controller = require('./controller');
 const connector = require('./connector');
 
 routes.route('/')
   .get((req, res) => {
     // Check if request has `authorization` on header
-    if (controller.has_authorization_key(req)) {
+    const token = req.headers['authorization'];
+    if (token !== undefined) {
       // Check if `authorization is valid for the given token
-      const token = req.headers['authorization'];
       connector.is_authorized(token, function(err, authorized) {
         // If it is not authorized, return Http Status Code 401: Not Authorized
         if (authorized === false) {
@@ -43,7 +42,7 @@ routes.route('/collection/:id?')
   .get((req, res) => {
     const token = req.headers['authorization'];
     // Check if request has `authorization` on header
-    if (controller.has_authorization_key(req)) {
+    if (token !== undefined) {
       // Check if `authorization` is valid for the given token
       const token = req.headers['authorization'];
       connector.is_authorized(token, function(err, authorized) {
@@ -101,6 +100,15 @@ routes.route('/collection/:id?')
       res.status(400).json({
         statusCode: 400,
         message: "You need to insert a token as 'authorization' on Header"
+      });
+    };
+  })
+  .post((req, res) => {
+    const token = req.headers['authorizazion'];
+    if (token === undefined) {
+      res.status(400).json({
+        statusCode: 400,
+        message: "You need to insert a token as 'authorization on Header'"
       });
     };
   })

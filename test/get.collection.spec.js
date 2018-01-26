@@ -8,7 +8,7 @@ describe('GET /collection', function() {
 
   it('should return 405 if method is not implemented', function(done) {
     request(api)
-      .post('/collection')
+      .copy('/collection')
       .set('authorization', 'TOKEN')
       .end(function(err, res) {
         expect(res.status).to.equal(405);
@@ -18,7 +18,7 @@ describe('GET /collection', function() {
 
   it('should return helping message if method is not implemented', function(done) {
     request(api)
-      .put('/collection')
+      .copy('/collection')
       .set('authorization', 'TOKEN')
       .end(function(err, res) {
         const expected = {
