@@ -52,5 +52,24 @@ module.exports = {
         callback(null, collections);
       }
     );
+  },
+  'is_valid_collection': (token, collection_id, callback) => {
+    connection.query(`
+      SELECT
+        count(1) as number_of_collections
+      FROM
+         collection, user
+      WHERE
+        collection.user_id=user.id AND
+        user.authorization='`+ token +`' AND
+        collection.id=`+ collection_id +`;
+      `,
+      function(err, result) {
+        var is_valid = true;
+        if (result[0].number_of_collections === 0)
+          is_valid = false;
+        callback(null, is_valid)
+      }
+    );
   }
 };

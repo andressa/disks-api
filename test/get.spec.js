@@ -52,12 +52,12 @@ describe('GET /', function () {
       });
   });
 
-  it('should return StatusCode 400 when passing wrong token', function(done) {
+  it('should return StatusCode 401 when passing wrong token', function(done) {
     request(api)
       .get('/')
       .set('authorization', 'INVALID_TOKEN')
       .end(function(err, res) {
-        expect(res.status).to.equal(400)
+        expect(res.status).to.equal(401)
         done();
       });
   });
@@ -68,7 +68,7 @@ describe('GET /', function () {
       .set('authorization', 'INVALID_TOKEN')
       .end(function(err, res) {
         const expected = {
-          statusCode: 400,
+          statusCode: 401,
           message: "Insert a valid token on Header as 'authorization'"
         };
         res.body.should.be.eql(expected);

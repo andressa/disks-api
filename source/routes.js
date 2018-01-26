@@ -4,15 +4,19 @@ const connector = require('./connector');
 
 routes.route('/')
   .get((req, res) => {
+    // Check if request has `authorization` on header
     if (controller.has_authorization_key(req)) {
+      // Check if `authorization is valid for the given token
       const token = req.headers['authorization'];
       connector.is_authorized(token, function(err, authorized) {
+        // If it is not authorized, return Http Status Code 401: Not Authorized
         if (authorized === false) {
-          res.status(400).json({
-            statusCode: 400,
+          res.status(401).json({
+            statusCode: 401,
             message: "Insert a valid token on Header as 'authorization'"
           });
         } else {
+          // User is authorized. Welcome message should be sent
           res.status(200).json({
             statusCode: 200,
             message: "Welcome to Disks API",
@@ -21,6 +25,7 @@ routes.route('/')
         }
       });
     } else {
+      // Authorization key was not found on header
       res.status(400).json({
         statusCode: 400,
         message: "You need to insert a token as 'authorization' on Header"
@@ -36,15 +41,16 @@ routes.route('/')
 
 routes.route('/collection/:id?')
   .get((req, res) => {
+    const token = req.headers['authorization'];
     // Check if request has `authorization` on header
     if (controller.has_authorization_key(req)) {
-      // Check if `authorization` is valid for the give token
+      // Check if `authorization` is valid for the given token
       const token = req.headers['authorization'];
       connector.is_authorized(token, function(err, authorized) {
         // If it is not authorized, return HTTP Status Code 400
         if (authorized === false) {
-          res.status(400).json({
-            statusCode: 400,
+          res.status(401).json({
+            statusCode: 401,
             message: "Insert a valid token on Header as 'authorization'"
           });
         } else {
@@ -59,10 +65,18 @@ routes.route('/collection/:id?')
                 statusCode: 400,
                 message: "You should inform the collection id to retrieve its disks.\nThe id should be a number"
               });
+            } else { // `id` is a number! Let's check if it is a valid collection
+              connector.is_valid_collection(token, collection_id, function(err, is_valid) {
+                if (!is_valid) {
+                  res.status(400).json({
+                    statusCode: 400,
+                    message: "You should pass an existent collection id"
+                  });
+                };
+              });
             };
           } else {
             // If id was not passed by parameter, return all collections
-            const token = req.headers['authorization'];
             connector.get_user_collections(token, function(err, collections) {
               res.status(200).json({
                 statusCode: 200,
@@ -74,19 +88,21 @@ routes.route('/collection/:id?')
         }
       });
     } else {
+      // Authorization key was not found on header
       res.status(400).json({
         statusCode: 400,
         message: "You need to insert a token as 'authorization' on Header"
       });
     };
   })
-  .all((req, res) => {
+  .all((req, res) => { // handles all other methods
     res.status(405).json({
       statusCode: 405,
       message: "The requested method is not allowed!"
     });
   });
 
+// Handles not implemented routes
 routes.route('/*')
   .get((req, res) => {
     res.status(404).json({
