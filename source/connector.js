@@ -16,20 +16,20 @@ connection.connect(function(err) {
 });
 
 module.exports = {
-  "is_authorized": (token, callback) => {
+  "is_authorized": (token, next) => {
     connection.query(
       "SELECT id FROM user WHERE authorization='"+token+"';",
       function(err, result) {
-        if (err) callback(err, null);
+        if (err) next(err, null);
         var is_valid = false;
         if (result.length === 1)
           is_valid = true;
         
-        callback(null, is_valid);
+        next(null, is_valid);
       }
     );
   },
-  'get_user_collections': (token, callback) => {
+  'get_user_collections': (token, next) => {
     connection.query(`
        SELECT
         collection.id, collection.name
@@ -39,7 +39,7 @@ module.exports = {
         collection.user_id=user.id AND user.authorization='`+ token +`';
       `,
       function(err, result) {
-        if (err) callback(err, null);
+        if (err) next(err, null);
         var collections = []
         for (var row=0; row < result.length; row++) {
           collections.push(
@@ -49,11 +49,11 @@ module.exports = {
             }
           )
         };
-        callback(null, collections);
+        next(null, collections);
       }
     );
   },
-  'is_valid_collection': (token, collection_id, callback) => {
+  'is_valid_collection': (token, collection_id, next) => {
     connection.query(`
       SELECT
         count(1) as number_of_collections
@@ -68,11 +68,11 @@ module.exports = {
         var is_valid = true;
         if (result[0].number_of_collections === 0)
           is_valid = false;
-        callback(null, is_valid)
+        next(null, is_valid)
       }
     );
   },
-  'get_collection_disks': (token, collection_id, callback) => {
+  'get_collection_disks': (token, collection_id, next) => {
     connection.query(`
       SELECT
         disk.id, disk.name, disk.producer, disk.year, disk.singer
@@ -88,7 +88,7 @@ module.exports = {
         collection.user_id=user.id;
       `,
       function(err, result) {
-        if (err) callback(err, null);
+        if (err) next(err, null);
         var disks = [];
         for (var row=0; row < result.length; row++) {
           disks.push({
@@ -99,7 +99,7 @@ module.exports = {
             singer: result[row].singer
           });
         };
-        callback(null, disks);
+        next(null, disks);
       }
     );
   }
