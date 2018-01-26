@@ -116,12 +116,19 @@ routes.route('/collection/:id?')
           });
         } else { // Authorization token is valid. Let's move on...
           const collection_id = req.params.id;
-          if (collection_id === undefined) {
+          if (collection_id === undefined) { // `id` was not passed by parameter
             res.status(400).json({
               statusCode: 400,
               message: "You need to pass by parameter the ID of the collection you are going to insert disk"
             });
-          }
+          } else { // `id` was passed by parameter...
+            if (isNaN(collection_id)) { // ... but, `id` is not a number
+              res.status(400).json({
+                statusCode: 400,
+                message: "Collection ID passed by parameter should be a number"
+              });
+            };
+          };
         };
       });
     } else { // Authorization key was not found on header

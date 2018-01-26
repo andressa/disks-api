@@ -74,5 +74,28 @@ describe('POST /collection/:id/', function() {
       });
   });
 
+  it('should return http status code 400 if id passed by parameter is not a number', function(done) {
+    request(api)
+      .post('/collection/N')
+      .set('authorization', 'TOKEN')
+      .end(function(err, res) {
+        expect(res.status).to.equal(400);
+        done();
+      });
+  });
+
+  it('should return helping message if id passed by parameter is not a number', function(done) {
+    request(api)
+      .post('/collection/N')
+      .set('authorization', 'TOKEN')
+      .end(function(err, res) {
+        res.body.should.be.eql({
+          statusCode: 400,
+          message: "Collection ID passed by parameter should be a number"
+        });
+        done();
+      });
+  });
+
 });
 
