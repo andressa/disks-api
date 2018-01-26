@@ -9,7 +9,7 @@
     "start-dev-db": "docker start disks-mysql",
     "stop-dev-db": "docker stop disks-mysql",
     "delete-dev-db": "npm run stop-dev-db && docker rm -f disks-mysql",
-    "test": "mocha -R spec test/*.spec.js --exit",
+    "test": "npm run delete-dev-db && npm run build-dev-db && mocha -R spec test/*.spec.js --exit",
     "start": "npm test && node ./source/server.js"
   },
   "author": "Andressa Sivolella <andressasivolella@gmail.com>",
