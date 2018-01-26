@@ -104,4 +104,28 @@ describe('GET /collection', function() {
       });
   });
 
+  it('should return Http StatusCode 400 if :id is not int', function(done) {
+    request(api)
+      .get('/collection/n')
+      .set('Authorization', 'TOKEN')
+      .end(function(err, res) {
+        expect(res.status).to.equal(400);
+        done();
+      });
+  });
+
+  it('should return helping message in case :id is not int', function(done) {
+    request(api)
+      .get('/collection/n')
+      .set('Authorization', 'TOKEN')
+      .end(function(err, res) {
+        const expected = {
+          statusCode: 400,
+          message: "You should inform the collection id to retrieve its disks.\nThe id should be a number"
+        };
+        res.body.should.be.eql(expected);
+        done();
+      });
+  });
+
 });
