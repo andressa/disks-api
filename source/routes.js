@@ -127,6 +127,23 @@ routes.route('/collection/:id?')
                 statusCode: 400,
                 message: "Collection ID passed by parameter should be a number"
               });
+            } else { // `id` is a number. Cool. Let's move on...
+              // Check if collection_id exists
+              connector.get_user_collections(token, function(err, collections) {
+                var collection_available = false;
+                for (var collection; collection < collections.length; collection++) {
+                  if (collection.id === collection_id) {
+                    collection_available = true;
+                    break;
+                  }
+                };
+                if (!collection_available) {
+                  res.status(401).json({
+                    statusCode: 401,
+                    message: "The collection id passed by parameter is not available for you."
+                  });
+                };
+              });
             };
           };
         };

@@ -97,5 +97,28 @@ describe('POST /collection/:id/', function() {
       });
   });
 
+  it('should return http status code 401 if id is invalid for user', function(done) {
+    request(api)
+      .post('/collection/1000000')
+      .set('authorization', 'TOKEN')
+      .end(function(err, res) {
+        expect(res.status).to.equal(401);
+        done();
+      });
+  });
+
+  it('should return helping message if the id is not available for user', function(done) {
+    request(api)
+      .post('/collection/1000000')
+      .set('authorization', 'TOKEN')
+      .end(function(err, res) {
+        res.body.should.be.eql({
+          statusCode: 401,
+          message: "The collection id passed by parameter is not available for you."
+        });
+        done();
+      });
+  });
+
 });
 
