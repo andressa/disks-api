@@ -15,15 +15,42 @@ describe('POST /collection/:id/', function() {
       });
   });
 
-  it('shoudl return helping message if "authorization" is missing', function(done) {
+  it('should return helping message if "authorization" is missing', function(done) {
     request(api)
       .post('/collection/1')
       .end(function(err, res) {
         res.body.should.be.eql({
           statusCode: 400,
-          message: "You need to insert a token as 'authorization on Header'"
+          message: "You need to insert a token as 'authorization' on Header"
         });
+        done();
       });
   });
+
+  it('should return StatusCode 401 when passing wrong token', function(done) {
+    request(api)
+      .post('/collection/1')
+      .set('authorization', 'INVALID_TOKEN')
+      .end(function(err, res) {
+        expect(res.status).to.equal(401)
+        done();
+      });
+  });
+
+  it('should return helping message if "authorization" is invalid', function(done) {
+    request(api)
+      .post('/collection/1')
+      .set('authorization', 'INVALID_TOKEN')
+      .end(function(err, res) {
+        const expected = {
+          statusCode: 401,
+          message: "Insert a valid token on Header as 'authorization'"
+        };
+        res.body.should.be.eql(expected);
+        done();
+      });
+  });
+
+
 });
 

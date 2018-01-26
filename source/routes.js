@@ -104,11 +104,22 @@ routes.route('/collection/:id?')
     };
   })
   .post((req, res) => {
-    const token = req.headers['authorizazion'];
-    if (token === undefined) {
+    const token = req.headers['authorization'];
+    // Check if `authorization` is defined on request header
+    if (token !== undefined) {
+      // Check if request is authorized
+      connector.is_authorized(token, function(err, is_valid) {
+        if (!is_valid) {
+          res.status(401).json({
+            statusCode: 401,
+            message: "Insert a valid token on Header as 'authorization'"
+          });
+        };
+      });
+    } else { // Authorization key was not found on header
       res.status(400).json({
         statusCode: 400,
-        message: "You need to insert a token as 'authorization on Header'"
+        message: "You need to insert a token as 'authorization' on Header"
       });
     };
   })
