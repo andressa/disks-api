@@ -115,8 +115,8 @@ routes.route('/collection/:id?')
             message: "Insert a valid token on Header as 'authorization'"
           });
         } else { // Authorization token is valid. Let's move on...
-          const collection_id = req.params.id;
-          if (collection_id === undefined) { // `id` was not passed by parameter
+          const collection_id = parseInt(req.params.id);
+          if (req.params.id === undefined || req.params.id === '') { // `id` was not passed by parameter
             res.status(400).json({
               statusCode: 400,
               message: "You need to pass by parameter the ID of the collection you are going to insert disk"
@@ -131,17 +131,28 @@ routes.route('/collection/:id?')
               // Check if collection_id exists
               connector.get_user_collections(token, function(err, collections) {
                 var collection_available = false;
-                for (var collection; collection < collections.length; collection++) {
-                  if (collection.id === collection_id) {
+                for (var item=0; item < collections.length; item++) {
+                  if (collections[item].id === collection_id) {
                     collection_available = true;
                     break;
                   }
                 };
-                if (!collection_available) {
+                if (!collection_available) { // User has no permission to edit requested collection
                   res.status(401).json({
                     statusCode: 401,
                     message: "The collection id passed by parameter is not available for you."
                   });
+                } else { // User is own of requested collection
+                  // Check if all required fields were sent
+                  const fields = ['name', 'producer', 'year', 'singer'];
+                  for (var item=0; item < fields.length; item++) {
+                    if (!req.body.hasOwnProperty(fields[item])) {
+                      res.status(400).json({
+                        statusCode: 400,
+                        message: "Field `"+ fields[item] +"` is missing in your posted data"
+                      });
+                    };
+                  };
                 };
               });
             };

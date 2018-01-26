@@ -5,6 +5,10 @@ const express = require('express');
 const routes = require('./routes')
 const api = express();
 
+const bodyParser = require('body-parser');
+api.use(bodyParser.json());
+api.use(bodyParser.urlencoded({extended: true}));
+
 // Enable CORS
 api.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");

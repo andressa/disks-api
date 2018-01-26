@@ -120,5 +120,137 @@ describe('POST /collection/:id/', function() {
       });
   });
 
+  // Required fields: name, producer, year, singer
+  it('should return http status code 400 if `name` field is missing', function(done) {
+    request(api)
+      .post('/collection/1')
+      .set('authorization', 'TOKEN')
+      .send({
+        producer: 'Mauro Manzoli, Tom Capone e Carlos Eduardo Miranda',
+        year: 2000,
+        singer: ''
+      })
+      .end(function(err, res) {
+        expect(res.status).to.equal(400);
+        done();
+      });
+  });
+
+  it('should return helping message if `name` field is missing', function(done) {
+    request(api)
+      .post('/collection/1')
+      .set('authorization', 'TOKEN')
+      .send({
+        producer: 'Mauro Manzoli, Tom Capone e Carlos Eduardo Miranda',
+        year: 2000,
+        singer: ''
+      })
+      .end(function(err, res) {
+        res.body.should.be.eql({
+          statusCode: 400,
+          message: "Field `name` is missing in your posted data"
+        });
+        done();
+      });
+  });
+
+  it('should return http status code 400 if `producer` field is missing', function(done) {
+    request(api)
+      .post('/collection/1')
+      .set('authorization', 'TOKEN')
+      .send({
+        name: 'MTV ao Vivo (Raimundos)',
+        year: 2000,
+        singer: ''
+      })
+      .end(function(err, res) {
+        expect(res.status).to.equal(400);
+        done();
+      });
+  });
+
+  it('should return helping message if `producer` field is missing', function(done) {
+    request(api)
+      .post('/collection/1')
+      .set('authorization', 'TOKEN')
+      .send({
+        name: 'MTV ao Vivo (Raimundos)',
+        year: 2000,
+        singer: ''
+      })
+      .end(function(err, res) {
+        res.body.should.be.eql({
+          statusCode: 400,
+          message: "Field `producer` is missing in your posted data"
+        });
+        done();
+      });
+  });
+
+  it('should return http status code 400 if `year` field is missing', function(done) {
+    request(api)
+      .post('/collection/1')
+      .set('authorization', 'TOKEN')
+      .send({
+        name: 'MTV ao Vivo (Raimundos)',
+        producer: 'Mauro Manzoli, Tom Capone e Carlos Eduardo Miranda',
+        singer: ''
+      })
+      .end(function(err, res) {
+        expect(res.status).to.equal(400);
+        done();
+      });
+  });
+
+  it('should return helping message if `year` field is missing', function(done) {
+    request(api)
+      .post('/collection/1')
+      .set('authorization', 'TOKEN')
+      .send({
+        name: 'MTV ao Vivo (Raimundos)',
+        producer: 'Mauro Manzoli, Tom Capone e Carlos Eduardo Miranda',
+        singer: ''
+      })
+      .end(function(err, res) {
+        res.body.should.be.eql({
+          statusCode: 400,
+          message: "Field `year` is missing in your posted data"
+        });
+        done();
+      });
+  });
+
+  it('should return http status code 400 if `singer` field is missing', function(done) {
+    request(api)
+      .post('/collection/1')
+      .set('authorization', 'TOKEN')
+      .send({
+        name: 'MTV ao Vivo (Raimundos)',
+        producer: 'Mauro Manzoli, Tom Capone e Carlos Eduardo Miranda',
+        year: 2000
+      })
+      .end(function(err, res) {
+        expect(res.status).to.equal(400);
+        done();
+      });
+  });
+
+  it('should return helping message if `singer` field is missing', function(done) {
+    request(api)
+      .post('/collection/1')
+      .set('authorization', 'TOKEN')
+      .send({
+        name: 'MTV ao Vivo (Raimundos)',
+        producer: 'Mauro Manzoli, Tom Capone e Carlos Eduardo Miranda',
+        year: 2000
+      })
+      .end(function(err, res) {
+        res.body.should.be.eql({
+          statusCode: 400,
+          message: "Field `singer` is missing in your posted data"
+        });
+        done();
+      });
+  });
 });
 
