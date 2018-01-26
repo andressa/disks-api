@@ -109,11 +109,19 @@ routes.route('/collection/:id?')
     if (token !== undefined) {
       // Check if request is authorized
       connector.is_authorized(token, function(err, is_valid) {
-        if (!is_valid) {
+        if (!is_valid) { // Authorization token is not valid
           res.status(401).json({
             statusCode: 401,
             message: "Insert a valid token on Header as 'authorization'"
           });
+        } else { // Authorization token is valid. Let's move on...
+          const collection_id = req.params.id;
+          if (collection_id === undefined) {
+            res.status(400).json({
+              statusCode: 400,
+              message: "You need to pass by parameter the ID of the collection you are going to insert disk"
+            });
+          }
         };
       });
     } else { // Authorization key was not found on header

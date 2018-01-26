@@ -51,6 +51,28 @@ describe('POST /collection/:id/', function() {
       });
   });
 
+  it('should return http status code 400 if :id is not passed by parameter', function(done) {
+    request(api)
+      .post('/collection/')
+      .set('authorization', 'TOKEN')
+      .end(function(err, res) {
+        expect(res.status).to.equal(400)
+        done();
+      });
+  });
+
+  it('should return a helping message if :id is not passed by parameter', function(done) {
+    request(api)
+      .post('/collection/')
+      .set('authorization', 'TOKEN')
+      .end(function(err, res) {
+        res.body.should.be.eql({
+          statusCode: 400,
+          message: "You need to pass by parameter the ID of the collection you are going to insert disk"
+        });
+        done();
+      });
+  });
 
 });
 
