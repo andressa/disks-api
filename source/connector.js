@@ -71,5 +71,36 @@ module.exports = {
         callback(null, is_valid)
       }
     );
+  },
+  'get_collection_disks': (token, collection_id, callback) => {
+    connection.query(`
+      SELECT
+        disk.id, disk.name, disk.producer, disk.year, disk.singer
+      FROM
+        user, collection, disk
+        INNER JOIN collection_disks ON (
+          collection_disks.disk_id=disk.id AND
+          collection_disks.collection_id=`+ collection_id +`
+        )
+      WHERE
+        user.authorization='`+ token +`' AND
+        collection.id=collection_disks.collection_id AND
+        collection.user_id=user.id;
+      `,
+      function(err, result) {
+        if (err) callback(err, null);
+        var disks = [];
+        for (var row=0; row < result.length; row++) {
+          disks.push({
+            id: result[row].id,
+            name: result[row].name,
+            producer: result[row].producer,
+            year: result[row].year,
+            singer: result[row].singer
+          });
+        };
+        callback(null, disks);
+      }
+    );
   }
 };

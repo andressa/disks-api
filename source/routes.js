@@ -67,10 +67,19 @@ routes.route('/collection/:id?')
               });
             } else { // `id` is a number! Let's check if it is a valid collection
               connector.is_valid_collection(token, collection_id, function(err, is_valid) {
+                // collection_id does not exist
                 if (!is_valid) {
                   res.status(400).json({
                     statusCode: 400,
                     message: "You should pass an existent collection id"
+                  });
+                } else { // return all disks from a given collection
+                  connector.get_collection_disks(token, collection_id, function(err, disks) {
+                    res.status(200).json({
+                      statusCode: 200,
+                      message: "Success! Retrieved your disks!",
+                      data: disks
+                    });
                   });
                 };
               });
