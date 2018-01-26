@@ -16,6 +16,20 @@ connection.connect(function(err) {
 });
 
 module.exports = {
+  "delete_disk": (data) => {
+    connection.query(`
+      SELECT id FROM disk WHERE
+        name='`+ data['name'] +`' AND
+        producer='`+ data['producer'] +`' AND
+        year=`+ data['year'] +` AND
+        singer='`+ data['singer'] +`';
+      `,
+      function(err, result) {
+        connection.query('DELETE FROM disk WHERE id=' + result[0].id);
+        connection.query('DELETE FROM collection_disks WHERE disk_id='+ result[0].id);
+      }
+    );
+  },
   "is_authorized": (token, next) => {
     connection.query(
       "SELECT id FROM user WHERE authorization='"+token+"';",
@@ -100,6 +114,27 @@ module.exports = {
           });
         };
         next(null, disks);
+      }
+    );
+  },
+  'insert_disk': (token, collection_id, data, next) => {
+    connection.query(`
+      INSERT INTO disk (name, producer, year, singer) VALUES (
+        '`+ data['name'] +`',
+        '`+ data['producer'] +`',
+        '`+ data['year'] +`',
+        '`+ data['singer'] +`'
+      );
+      `,
+      function(err, result) {
+        if (err) next(err, null);
+        connection.query(`
+          INSERT INTO collection_disks (collection_id, disk_id) VALUES (
+            `+ collection_id +`, `+ result.insertId +`
+          )
+          `
+        );
+        next(null, result.insertId);
       }
     );
   }

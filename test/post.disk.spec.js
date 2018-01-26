@@ -3,6 +3,7 @@ const chai = require('chai');
 const should = chai.should(); 
 const expect = require('chai').expect;
 const api = require('../source/server');
+const connector = require("../source/connector");
 
 describe('POST /collection/:id/', function() {
 
@@ -251,6 +252,32 @@ describe('POST /collection/:id/', function() {
         });
         done();
       });
+  });
+
+  it('should return 201 if disk is created', function(done) {
+    request(api)
+      .post('/collection/1')
+      .set('authorization', 'TOKEN')
+      .send({
+        name: 'MTV ao Vivo (Raimundos)',
+        producer: 'Mauro Manzoli, Tom Capone e Carlos Eduardo Miranda',
+        year: 2000,
+        singer: ''
+      })
+      .end(function(err, res) {
+        expect(res.status).to.equal(201);
+        res.body.should.be.eql({
+          statusCode: 201,
+          message: "Nice job! You just created a new disk on your collection!"
+        });
+      });
+      connector.delete_disk({
+        name: 'MTV ao Vivo (Raimundos)',
+        producer: 'Mauro Manzoli, Tom Capone e Carlos Eduardo Miranda',
+        year: 2000,
+        singer: ''
+      });
+      done();
   });
 });
 

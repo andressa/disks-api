@@ -145,13 +145,27 @@ routes.route('/collection/:id?')
                 } else { // User is own of requested collection
                   // Check if all required fields were sent
                   const fields = ['name', 'producer', 'year', 'singer'];
+                  var missing_field = false;
+                  var data = {};
                   for (var item=0; item < fields.length; item++) {
+                    data[fields[item]] = req.body[fields[item]];
                     if (!req.body.hasOwnProperty(fields[item])) {
                       res.status(400).json({
                         statusCode: 400,
                         message: "Field `"+ fields[item] +"` is missing in your posted data"
-                      });
+                      }).end();
+                      missing_field = true;
+                      break;
                     };
+                  };
+                  if (!missing_field) {
+                    connector.insert_disk(token, collection_id, data, function(err, inserted_disk_id) {
+                      if (inserted_disk_id !== null)
+                        res.status(201).json({
+                          statusCode: 201,
+                          message: "Nice job! You just created a new disk on your collection!"
+                        });
+                    });
                   };
                 };
               });
