@@ -86,6 +86,56 @@ module.exports = {
       }
     );
   },
+  'is_valid_disk': (token, disk_id, next) => {
+    connection.query(`
+        SELECT
+          count(1) as number_of_disks
+        FROM
+          disk, collection_disks, collection, user
+        WHERE
+          authorization='`+ token +`' AND
+          disk.id=collection_disks.disk_id AND
+          collection.user_id=user.id AND
+          collection.id=collection_disks.collection_id AND
+          disk.id=`+ disk_id +`;
+      `,
+      function(err, result) {
+        if (err) next(err, null);
+        var is_valid = false;
+        if (result[0].number_of_disks === 1) {
+          is_valid = true;
+        };
+        next(null, is_valid);
+      }
+    )
+  },
+  'edit_disk': (disk_id, changes, next) => {
+    connection.query(`
+        UPDATE
+          disk
+        SET `+ changes +`
+        WHERE id=`+ disk_id +`;
+      `,
+      function(err, _) {
+        if (err) next(err, null);
+        next(null, true);
+      }
+    )
+  },
+  'get_disk': (disk_id, next) => {
+    connection.query(
+      "SELECT name, producer, year, singer FROM disk WHERE id="+ disk_id +";",
+      function(err, result) {
+        if (err) next(err, null);
+        next(null, {
+          name: result[0].name,
+          producer: result[0].producer,
+          year: result[0].year,
+          singer: result[0].singer
+        });
+      }
+    )
+  },
   'get_collection_disks': (token, collection_id, next) => {
     connection.query(`
       SELECT

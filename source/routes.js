@@ -187,6 +187,83 @@ routes.route('/collection/:id?')
     });
   });
 
+routes.route('/disk/:id?')
+  .patch((req, res) => {
+    const token = req.headers['authorization'];
+    // Check if `authorization` is defined on request header
+    if (token === undefined) {
+      res.status(400).json({
+        statusCode: 400,
+        message: "You need to insert a token as 'authorization' on Header"
+      });
+    } else { // 'authorization' is in header request
+      // Check if request is authorized
+      connector.is_authorized(token, function(err, is_valid) {
+        if (!is_valid) { // Authorization token is not valid
+          res.status(401).json({
+            statusCode: 401,
+            message: "Insert a valid token on Header as 'authorization'"
+          });
+        } else { // Request is authorized
+          // Check if disk id was passed by parameter
+          if (req.params.id === undefined || req.params.id === '') {
+            res.status(400).json({
+              statusCode: 400,
+              message: "You need to pass by parameter the ID of the disk you want to edit"
+            });
+          } else { // Disk id was passed by parameter. Check it is a number
+            const disk_id = parseInt(req.params.id);
+            if (isNaN(disk_id)) { // Passed disk id is not a number
+              res.status(400).json({
+                statusCode: 400,
+                message: "Disk ID passed by parameter should be a number"
+              });
+            } else { // Check if user has authorization to edit requested disk id
+              connector.is_valid_disk(token, disk_id, function(err, is_valid) {
+                if (!is_valid) { // Disk id does not belong to user
+                  res.status(401).json({
+                    statusCode: 401,
+                    message: "The disk id passed by parameter is not available for your edition."
+                  });
+                } else { // User is authorized to edit requested disk id
+                  // Check if valid fields were sent on body request
+                  const fields = ['name', 'producer', 'year', 'singer'];
+                  var data = "";
+                  for (var field=0; field < fields.length; field++) {
+                    if (req.body.hasOwnProperty(fields[field])) {
+                      data += fields[field] + "='"+ req.body[fields[field]] +"' "
+                    };
+                  };
+                  if (data.length === 0) {
+                    res.status(400).json({
+                      statusCode: 400,
+                      message: "You should send at least one valid field to edit, such as: `name`, `producer`, `year` or `singer`"
+                    });
+                  } else {
+                    connector.edit_disk(disk_id, data, function(err, updated) {
+                      if (updated) {
+                        res.status(200).json({
+                          statusCode: 200,
+                          message: "Updated disk with id "+ disk_id +"!"
+                        });
+                      };
+                    });
+                  };
+                };
+              });
+            };
+          }
+        }
+      });
+    };
+  })
+  .all((req, res) => { // handle all other methods
+    res.status(405).json({
+      statusCode: 405,
+      message: "The requested method is not allowed!"
+    });
+  });
+
 // Handles not implemented routes
 routes.route('/*')
   .get((req, res) => {
