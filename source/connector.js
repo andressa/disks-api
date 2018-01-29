@@ -206,5 +206,33 @@ module.exports = {
         next(null, result.insertId);
       }
     );
+  },
+  'search': (token, filters, next) => {
+    connection.query(`
+        SELECT
+          disk.name, disk.producer, disk.year, disk.singer
+        FROM
+          disk, collection_disks, user, collection
+        WHERE
+          user.authorization='`+ token +`' AND
+          collection.user_id=user.id AND
+          collection_disks.collection_id=collection.id AND
+          collection_disks.disk_id=disk.id 
+          `+ filters +`;
+      `,
+      function(err, results) {
+        if (err) next(err, null);
+        var disks = [];
+        for (var row=0; row < results.length; row++) {
+          disks.push({
+            name: results[row].name,
+            producer: results[row].producer,
+            year: results[row].year,
+            singer: results[row].singer
+          });
+        };
+        next(null, disks);
+      }
+    );
   }
 };

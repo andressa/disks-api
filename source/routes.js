@@ -38,6 +38,54 @@ routes.route('/')
     });
   });
 
+routes.route('/search')
+  .get((req, res) => {
+    const token = req.headers['authorization'];
+    if (token === undefined) {
+      res.status(400).json({
+        statusCode: 400,
+        message: "You need to insert a token as 'authorization' on Header"
+      });
+    } else {
+      // Check if `authorization is valid for the given token
+      connector.is_authorized(token, function(err, authorized) {
+        // If it is not authorized, return Http Status Code 401: Not Authorized
+        if (authorized === false) {
+          res.status(401).json({
+            statusCode: 401,
+            message: "Insert a valid token on Header as 'authorization'"
+          });
+        } else { // Let's search!
+          var filters = "";
+          var fields = ['name', 'producer', 'year', 'singer'];
+          for (var field=0; field < fields.length; field++) {
+            if (req.query.hasOwnProperty(fields[field])) {
+              filters += `AND disk.` + fields[field] + ` like '%`+ req.query[fields[field]] +`%' `;
+            };
+          };
+          filters = filters.replace(/"/g, '');
+          connector.search(token, filters, function(err, disks) {
+            if(err) res.status(500);
+            if (disks.length === 0) {
+              res.status(204).end();
+            } else {
+              res.status(200).json({
+                statusCode: 200,
+                data: disks
+              });
+            };
+          });
+        }
+      });
+    };
+  })
+  .all((req, res) => {
+    res.status(405).json({
+      statusCode: 405,
+      message: "The requested method is not allowed!"
+    });
+  });
+
 routes.route('/collection/:id?')
   .get((req, res) => {
     const token = req.headers['authorization'];
