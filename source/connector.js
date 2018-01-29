@@ -16,6 +16,12 @@ connection.connect(function(err) {
 });
 
 module.exports = {
+  "delete_disk_by_id": (disk_id, next) => {
+    connection.query(`DELETE FROM disk WHERE id=` + disk_id +`;`);
+    connection.query(`DELETE FROM collection_disks WHERE disk_id=`+ disk_id + `;`);
+
+    next(null, true);
+  },
   "delete_disk": (data) => {
     connection.query(`
       SELECT id FROM disk WHERE
@@ -122,6 +128,19 @@ module.exports = {
       }
     )
   },
+  'disk_exists': (disk_id, next) => {
+    connection.query(
+      `SELECT count(1) as number_of_disks FROM disk WHERE id=` + disk_id,
+      function(err, result) {
+        if (err) next(err, null);
+        var disk_exists = false;
+        if (result[0].number_of_disks !== 0) {
+          disk_exists = true;
+        };
+        next(null, disk_exists);
+      }
+    );
+  },
   'get_disk': (disk_id, next) => {
     connection.query(
       "SELECT name, producer, year, singer FROM disk WHERE id="+ disk_id +";",
@@ -134,7 +153,7 @@ module.exports = {
           singer: result[0].singer
         });
       }
-    )
+    );
   },
   'get_collection_disks': (token, collection_id, next) => {
     connection.query(`

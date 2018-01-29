@@ -188,6 +188,66 @@ routes.route('/collection/:id?')
   });
 
 routes.route('/disk/:id?')
+  .delete((req, res) => {
+    const token = req.headers['authorization'];
+    // Check if `authorization` is defined on request header
+    if (token === undefined) {
+      res.status(400).json({
+        statusCode: 400,
+        message: "You need to insert a token as 'authorization' on Header"
+      });
+    } else { // 'authorization' is in header request
+      // Check if request is authorized
+      connector.is_authorized(token, function(err, is_valid) {
+        if (!is_valid) { // Authorization token is not valid
+          res.status(401).json({
+            statusCode: 401,
+            message: "Insert a valid token on Header as 'authorization'"
+          });
+        } else {
+          // Request is authorized
+          // Check if disk id was passed by parameter
+          if (req.params.id === undefined || req.params.id === '') {
+            res.status(400).json({
+              statusCode: 400,
+              message: "You need to pass by parameter the ID of the disk you want to delete"
+            });
+          } else {
+            // Disk id was passed by parameter. Check it is a number
+            const disk_id = parseInt(req.params.id);
+            if (isNaN(disk_id)) { // Passed disk id is not a number
+              res.status(400).json({
+                statusCode: 400,
+                message: "Disk ID passed by parameter should be a number"
+              });
+            } else {
+              // Check if user has authorization to edit requested disk id
+              connector.is_valid_disk(token, disk_id, function(err, is_valid) {
+                if (!is_valid) { // Disk id does not belong to user
+                  res.status(401).json({
+                    statusCode: 401,
+                    message: "The disk id passed by parameter is not available for your deletion."
+                  });
+                } else {
+                  connector.delete_disk_by_id(disk_id, function(err, deleted) {
+                    if (err) res.status(500);
+                    if (deleted) {
+                      res.status(200).json({
+                        statusCode: 200,
+                        message: "Disk id " + disk_id + " deleted!"
+                      });
+                    } else {
+                      res.status(500);
+                    };
+                  });
+                }
+              });
+            };
+          };
+        };
+      });
+    };
+  })
   .patch((req, res) => {
     const token = req.headers['authorization'];
     // Check if `authorization` is defined on request header
