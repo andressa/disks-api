@@ -60,7 +60,11 @@ routes.route('/search')
           var fields = ['name', 'producer', 'year', 'singer'];
           for (var field=0; field < fields.length; field++) {
             if (req.query.hasOwnProperty(fields[field])) {
-              filters += `AND disk.` + fields[field] + ` like '%`+ req.query[fields[field]] +`%' `;
+              if (filters === "") {
+                filters += `AND disk.` + fields[field] + ` like '%`+ req.query[fields[field]] +`%' `;
+              } else {
+                filters += `OR disk.` + fields[field] + ` like '%`+ req.query[fields[field]] +`%' `;
+              };
             };
           };
           filters = filters.replace(/"/g, '');
@@ -336,13 +340,13 @@ routes.route('/disk/:id?')
                 } else { // User is authorized to edit requested disk id
                   // Check if valid fields were sent on body request
                   const fields = ['name', 'producer', 'year', 'singer'];
-                  var data = "";
+                  var data = {};
                   for (var field=0; field < fields.length; field++) {
                     if (req.body.hasOwnProperty(fields[field])) {
-                      data += fields[field] + "='"+ req.body[fields[field]] +"' "
+                      data[fields[field]] = req.body[fields[field]];
                     };
                   };
-                  if (data.length === 0) {
+                  if (Object.keys(data).length === 0) {
                     res.status(400).json({
                       statusCode: 400,
                       message: "You should send at least one valid field to edit, such as: `name`, `producer`, `year` or `singer`"

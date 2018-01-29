@@ -17,28 +17,28 @@ connection.connect(function(err) {
 
 module.exports = {
   "delete_disk_by_id": (disk_id, next) => {
-    connection.query(`DELETE FROM disk WHERE id=` + disk_id +`;`);
-    connection.query(`DELETE FROM collection_disks WHERE disk_id=`+ disk_id + `;`);
+    connection.query(`DELETE FROM disk WHERE id=` + connection.escape(disk_id) +`;`);
+    connection.query(`DELETE FROM collection_disks WHERE disk_id=`+ connection.escape(disk_id) + `;`);
 
     next(null, true);
   },
   "delete_disk": (data) => {
     connection.query(`
       SELECT id FROM disk WHERE
-        name='`+ data['name'] +`' AND
-        producer='`+ data['producer'] +`' AND
-        year=`+ data['year'] +` AND
-        singer='`+ data['singer'] +`';
+        name='`+ connection.escape(data['name']) +`' AND
+        producer='`+ connection.escape(data['producer']) +`' AND
+        year=`+ connection.escape(data['year']) +` AND
+        singer='`+ connection.escape(data['singer']) +`';
       `,
       function(err, result) {
-        connection.query('DELETE FROM disk WHERE id=' + result[0].id);
-        connection.query('DELETE FROM collection_disks WHERE disk_id='+ result[0].id);
+        connection.query('DELETE FROM disk WHERE id=' + connection.escape(result[0].id));
+        connection.query('DELETE FROM collection_disks WHERE disk_id='+ connection.escape(result[0].id));
       }
     );
   },
   "is_authorized": (token, next) => {
     connection.query(
-      "SELECT id FROM user WHERE authorization='"+token+"';",
+      "SELECT id FROM user WHERE authorization="+ connection.escape(token) +";",
       function(err, result) {
         if (err) next(err, null);
         var is_valid = false;
@@ -56,7 +56,7 @@ module.exports = {
        FROM
         collection, user
        WHERE
-        collection.user_id=user.id AND user.authorization='`+ token +`';
+        collection.user_id=user.id AND user.authorization=`+ connection.escape(token) +`;
       `,
       function(err, result) {
         if (err) next(err, null);
@@ -81,8 +81,8 @@ module.exports = {
          collection, user
       WHERE
         collection.user_id=user.id AND
-        user.authorization='`+ token +`' AND
-        collection.id=`+ collection_id +`;
+        user.authorization=`+ connection.escape(token) +` AND
+        collection.id=`+ connection.escape(collection_id) +`;
       `,
       function(err, result) {
         var is_valid = true;
@@ -99,11 +99,11 @@ module.exports = {
         FROM
           disk, collection_disks, collection, user
         WHERE
-          authorization='`+ token +`' AND
+          authorization=`+ connection.escape(token) +` AND
           disk.id=collection_disks.disk_id AND
           collection.user_id=user.id AND
           collection.id=collection_disks.collection_id AND
-          disk.id=`+ disk_id +`;
+          disk.id=`+ connection.escape(disk_id) +`;
       `,
       function(err, result) {
         if (err) next(err, null);
@@ -115,13 +115,14 @@ module.exports = {
       }
     )
   },
-  'edit_disk': (disk_id, changes, next) => {
+  'edit_disk': (disk_id, fields, next) => {
     connection.query(`
         UPDATE
           disk
-        SET `+ changes +`
-        WHERE id=`+ disk_id +`;
+        SET ? 
+        WHERE id=`+ connection.escape(disk_id) +`;
       `,
+      fields,
       function(err, _) {
         if (err) next(err, null);
         next(null, true);
@@ -130,7 +131,7 @@ module.exports = {
   },
   'disk_exists': (disk_id, next) => {
     connection.query(
-      `SELECT count(1) as number_of_disks FROM disk WHERE id=` + disk_id,
+      `SELECT count(1) as number_of_disks FROM disk WHERE id=` + connection.escape(disk_id),
       function(err, result) {
         if (err) next(err, null);
         var disk_exists = false;
@@ -143,7 +144,7 @@ module.exports = {
   },
   'get_disk': (disk_id, next) => {
     connection.query(
-      "SELECT name, producer, year, singer FROM disk WHERE id="+ disk_id +";",
+      "SELECT name, producer, year, singer FROM disk WHERE id="+ connection.escape(disk_id) +";",
       function(err, result) {
         if (err) next(err, null);
         next(null, {
@@ -163,10 +164,10 @@ module.exports = {
         user, collection, disk
         INNER JOIN collection_disks ON (
           collection_disks.disk_id=disk.id AND
-          collection_disks.collection_id=`+ collection_id +`
+          collection_disks.collection_id=`+ connection.escape(collection_id) +`
         )
       WHERE
-        user.authorization='`+ token +`' AND
+        user.authorization=`+ connection.escape(token) +` AND
         collection.id=collection_disks.collection_id AND
         collection.user_id=user.id;
       `,
@@ -187,19 +188,14 @@ module.exports = {
     );
   },
   'insert_disk': (token, collection_id, data, next) => {
-    connection.query(`
-      INSERT INTO disk (name, producer, year, singer) VALUES (
-        '`+ data['name'] +`',
-        '`+ data['producer'] +`',
-        '`+ data['year'] +`',
-        '`+ data['singer'] +`'
-      );
-      `,
+    connection.query(
+      `INSERT INTO disk SET ?`,
+      data,
       function(err, result) {
         if (err) next(err, null);
         connection.query(`
           INSERT INTO collection_disks (collection_id, disk_id) VALUES (
-            `+ collection_id +`, `+ result.insertId +`
+            `+ connection.escape(collection_id) +`, `+ connection.escape(result.insertId) +`
           )
           `
         );
@@ -214,7 +210,7 @@ module.exports = {
         FROM
           disk, collection_disks, user, collection
         WHERE
-          user.authorization='`+ token +`' AND
+          user.authorization=`+ connection.escape(token) +` AND
           collection.user_id=user.id AND
           collection_disks.collection_id=collection.id AND
           collection_disks.disk_id=disk.id 

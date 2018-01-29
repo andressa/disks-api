@@ -192,7 +192,7 @@ describe('PATCH /disk/:id/', function() {
             singer: ''
           });
         });
-        connector.edit_disk(1, "name='Mamonas Assassinas'", function(_, _){});
+        connector.edit_disk(1, {name: "Mamonas Assassinas"}, function(_, _){});
         done();
       });
   });
@@ -217,7 +217,7 @@ describe('PATCH /disk/:id/', function() {
             singer: ''
           });
         });
-        connector.edit_disk(1, "year=1995", function(_, _){});
+        connector.edit_disk(1, {year: 1995}, function(_, _){});
         done();
       });
   });
