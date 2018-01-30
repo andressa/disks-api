@@ -11,14 +11,14 @@ properties:
 * `year`
 * `singer`
 
-Each user has an `authorizationtoken` that allows him / her to insert, delete or edit disk information.
+Each user has an `authorization token` that allows him / her to insert, delete or edit disk information.
 
 An user can also have `collections`. A `collection` is composed by a group of
 disks.
 
 In the image below there is a suggestion of structure to store the described objects.
 The `Track` table IS NOT IMPLEMENTED in the current version, but the code base
-is ready for this extension.
+can be extended.
 
 ![UML](./images/UML.png)
 
@@ -34,12 +34,11 @@ $ ~(master) > npm install
 
 After executing the command above you will find a `node_modules` folder. This is where the local required packages are installed.
 
-Before you proceed, make sure to download the content present in this [Drive](https://drive.google.com/drive/folders/1x9zCRheB9nLfFHejK-RhAtcyI6mrA2PP) folder and put it locally, at `starter` folder.
-Go ahead and create this folder:
+Before you proceed, make sure to download the content present in the **`starter`** directory present inside this [Drive](https://drive.google.com/drive/folders/1x9zCRheB9nLfFHejK-RhAtcyI6mrA2PP?usp=sharing) folder and put it locally, at `starter` folder. To do so, go ahead and move the downloaded content after creating `starter` folder:
 
 ```bash
 $ ~(master) > mkdir starter
-$ ~(master) > mv /path-to-downloaded-content/* ./starter/
+$ ~(master) > mv /path-to-downloaded-content/starter/* ./starter/
 ```
 
 To run this code base locally, you need to have [`Docker`](https://docs.docker.com/install/) and [`Docker Compose`](https://docs.docker.com/compose/install/) installed on your
@@ -61,7 +60,7 @@ This command is going to run tests and if all tests pass, the API server is goin
 
 ## Available Features
 
-All the implmented methods requires the *key:value* `authorization: token` to be passed on the Header of the request.
+All the implmented methods requires the *key:value* `authorization: TOKEN` to be passed on the Header of the request.
 
 Here are the list of available request methods with a brief description:
 
@@ -71,7 +70,7 @@ Here are the list of available request methods with a brief description:
 
 `GET /collection/:id`: List all disks on the requested collection `:id`
 
-`POST /collection/:id`: Add a disk in the collection `id`. The disk details should be sent as `x-www-form-urlencoded`. The required fields are:
+`POST /collection/:id`: Add a disk in the collection `id`, if user is allowed. The disk details should be sent as `x-www-form-urlencoded`. The required fields are:
 
 * `name`
 * `producer`
@@ -80,11 +79,11 @@ Here are the list of available request methods with a brief description:
 
 **ALERT**: This version is not preventing the insertion of duplicated disks.
 
-`PATCH /disk/:id`: Edits at least one disk field, if the user is allowed.
+`PATCH /disk/:id`: Edit at least one disk field, if the user is allowed.
 
-`DELETE /disk/:id`: Deletes disk with `id` from both `collection_disks` and `disk` tables.
+`DELETE /disk/:id`: Delete disk with `id` from both `collection_disks` and `disk` tables, if user is allowed.
 
-`GET /search/?PARAMETERS`: With this method it is possible to search for text patterns in any disk field. If no valid field is passed by parameter, this request returns all available disks.
+`GET /search/?PARAMETERS`: With this method it is possible to search for text substrings in any disk field. If no valid field is passed by parameter, this request returns all available disks.
 
 # Further available `npm commands`
 
